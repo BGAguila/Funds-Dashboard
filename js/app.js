@@ -320,6 +320,7 @@ function loadFund(isin) {
   const latestDate = dates[dates.length - 1];
 
   // Mostrar panel principal
+  const name = _getName(isin);
   document.getElementById('fund-panel').style.display = 'block';
 
   // Nombre del fondo (fila dentro del selector)
