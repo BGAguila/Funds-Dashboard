@@ -243,7 +243,7 @@ function computeReturnNMonths(dates, navs, n) {
 function computeAnnualReturns(dates, navs) {
   if (!dates.length) return [];
   const curYear = new Date().getFullYear();
-  const targetYears = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+  const targetYears = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
   const results = [];
 
   for (const y of targetYears) {
@@ -659,6 +659,7 @@ function renderAnnualChart(annual) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 24 } },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -669,9 +670,10 @@ function renderAnnualChart(annual) {
         datalabels: {
           anchor: 'end',
           align: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'top' : 'bottom',
-          formatter: (v) => fmtPct(v),
+          formatter: v => fmtPct(v),
           color: '#000000',
-          font: { weight: 'bold', size: 10 }
+          font: { weight: 'bold', size: 10 },
+          clip: false
         }
       },
       scales: {
@@ -706,6 +708,7 @@ function renderPeriodoChart(isin) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 24 } },
       plugins: {
         legend: { display: false },
         datalabels: {
@@ -713,7 +716,8 @@ function renderPeriodoChart(isin) {
           align: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'top' : 'bottom',
           formatter: v => fmtPct(v),
           color: '#000000',
-          font: { weight: 'bold', size: 10 }
+          font: { weight: 'bold', size: 10 },
+          clip: false
         },
         tooltip: {
           backgroundColor: '#1e2535', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
