@@ -558,13 +558,16 @@ function loadFund(isin) {
   document.getElementById('stat-high52').textContent = Math.max(...w52.navs).toFixed(2);
   document.getElementById('stat-low52').textContent  = Math.min(...w52.navs).toFixed(2);
 
-  // Gráficos
-  renderNAVChart(filt.dates, filt.navs, currentPeriod);
-  document.getElementById('nav-chart-sub').textContent =
-    isin + ' · ' + (filt.dates[0] || '—') + ' → ' + latestDate;
-
-  renderAnnualChart(computeAnnualReturns(dates, navs));
-  renderPeriodoChart(isin);
+  // Gráficos — diferir un frame para que el layout del panel sea válido
+  const _filtDates = filt.dates, _filtNavs = filt.navs;
+  const _annualData = computeAnnualReturns(dates, navs);
+  const _navSub = isin + ' · ' + (_filtDates[0] || '—') + ' → ' + latestDate;
+  requestAnimationFrame(function() {
+    renderNAVChart(_filtDates, _filtNavs, currentPeriod);
+    document.getElementById('nav-chart-sub').textContent = _navSub;
+    renderAnnualChart(_annualData);
+    renderPeriodoChart(isin);
+  });
 }
 
 function setPeriod(period) {
