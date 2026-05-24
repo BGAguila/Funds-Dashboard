@@ -563,7 +563,7 @@
           <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
-        <p>No se pudieron cargar los archivos CSV de <code>data/</code>. Verifica que <code>5ejemplos-info general.csv</code> y <code>5ejemplos-nav.csv</code> existan y sirve la página desde un servidor local (p.ej. <code>python -m http.server</code>).</p>
+        <p><strong>Error al cargar datos:</strong> Los archivos CSV no se encuentran. <br><br>✓ <strong>En local:</strong> Asegúrate de que la carpeta <code>data/</code> contenga <code>5ejemplos-info general.csv</code> y <code>5ejemplos-nav.csv</code>. Sirve con: <code>python -m http.server 8000</code><br><br>✓ <strong>En GitHub Pages:</strong> Sube la carpeta <code>data/</code> al repositorio. Los archivos deben estar en: <code>https://usuario.github.io/repositorio/data/5ejemplos-info general.csv</code></p>
       </div>
 
       <!-- ISIN Selector -->
@@ -575,10 +575,6 @@
           <select id="isin-select" class="isin-select"></select>
           <button class="btn-load" onclick="loadFund(document.getElementById('isin-select').value)">Cargar</button>
           <span class="isin-count" id="isin-count-label"></span>
-        </div>
-        <div class="fund-name-row" id="fund-name-row">
-          <span class="fund-name-text" id="fund-name-text">—</span>
-          <span class="fund-isin-chip" id="fund-isin-chip"></span>
         </div>
       </div>
 
@@ -634,6 +630,106 @@
           <div class="info-row"><span class="info-key">AUM Clase</span><span class="info-val" id="fi-aum-clase">—</span></div>
           <div class="info-row"><span class="info-key">Coste Ongoing</span><span class="info-val" id="fi-ongoing">—</span></div>
           <div class="info-row"><span class="info-key">Comisión Gestión</span><span class="info-val" id="fi-comision">—</span></div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="height:6px"></div>
+        <div class="grid-4">
+          <div class="stat-card" style="background:linear-gradient(135deg,rgba(8,145,178,0.07),rgba(8,145,178,0.02))">
+            <div class="icon-wrap" style="background:rgba(8,145,178,0.1)">
+              <svg fill="none" stroke="#0891b2" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="val" id="stat-nav">—</div>
+            <div class="lbl">Último NAV · <span id="stat-nav-date" style="color:var(--dimmer)">—</span></div>
+          </div>
+
+          <div class="stat-card" style="background:linear-gradient(135deg,rgba(124,58,237,0.07),rgba(124,58,237,0.02))">
+            <div class="icon-wrap" style="background:rgba(124,58,237,0.1)">
+              <svg fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+            </div>
+            <div class="val" id="stat-period-ret">—</div>
+            <div class="lbl" id="stat-period-lbl">Retorno ALL</div>
+          </div>
+
+          <div class="stat-card" style="background:linear-gradient(135deg,rgba(5,150,105,0.07),rgba(5,150,105,0.02))">
+            <div class="icon-wrap" style="background:rgba(5,150,105,0.1)">
+              <svg fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="val" id="stat-ytd">—</div>
+            <div class="lbl">Retorno <span id="stat-ytd-label">2026 YTD</span></div>
+          </div>
+
+          <div class="stat-card" style="background:linear-gradient(135deg,rgba(217,119,6,0.07),rgba(217,119,6,0.02))">
+            <div class="icon-wrap" style="background:rgba(217,119,6,0.1)">
+              <svg fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                <line x1="16" y1="7" x2="22" y2="7"/><line x1="22" y1="7" x2="22" y2="13"/>
+              </svg>
+            </div>
+            <div class="sub-row">
+              <div class="sub-item">
+                <div class="sub-val" id="stat-high52" style="color:#059669">—</div>
+                <div class="sub-lbl">Máx 52s</div>
+              </div>
+              <div class="sub-item" style="border-left:1px solid var(--border);padding-left:12px">
+                <div class="sub-val" id="stat-low52" style="color:#e11d48">—</div>
+                <div class="sub-lbl">Mín 52s</div>
+              </div>
+            </div>
+            <div class="lbl" style="margin-top:4px">Rango 52 semanas</div>
+          </div>
+        </div>
+
+        <!-- NAV Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">NAV Histórico</div>
+              <div class="card-sub" id="nav-chart-sub">Selecciona un fondo</div>
+            </div>
+            <div class="period-btns">
+              <button class="period-btn" data-period="1M" onclick="setPeriod('1M')">1M</button>
+              <button class="period-btn" data-period="6M" onclick="setPeriod('6M')">6M</button>
+              <button class="period-btn" data-period="1Y" onclick="setPeriod('1Y')">1Y</button>
+              <button class="period-btn" data-period="3Y" onclick="setPeriod('3Y')">3Y</button>
+              <button class="period-btn" data-period="5Y" onclick="setPeriod('5Y')">5Y</button>
+              <button class="period-btn active" data-period="ALL" onclick="setPeriod('ALL')">ALL</button>
+            </div>
+          </div>
+          <div class="chart-wrap-lg"><canvas id="chart-nav"></canvas></div>
+        </div>
+
+        <!-- Annual Returns Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Rentabilidad por Año</div>
+              <div class="card-sub">2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023 · 2024 · 2025 · 2026 YTD</div>
+            </div>
+            <span class="badge badge-violet" id="annual-isin-badge">—</span>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-annual"></canvas></div>
+        </div>
+
+        <!-- Rentabilidad por Periodo Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Rentabilidad por Periodo</div>
+              <div class="card-sub">Rentabilidad media anual (CAGR) · 1A · 3A · 5A · 7A · 10A · ALL</div>
+            </div>
+            <span class="badge badge-cyan" id="periodo-isin-badge">—</span>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-periodo"></canvas></div>
         </div>
       </div>
 
@@ -734,107 +830,6 @@
           <div class="info-row"><span class="info-key">Nº Activos Total</span><span class="info-val" id="fi-nactivos">—</span></div>
           <div class="info-row"><span class="info-key">Top 10 Concentrac.</span><span class="info-val" id="fi-top10">—</span></div>
         </div>
-      </div>
-
-      <!-- ── EXISTING STATS ROW ── -->
-      <div style="height:6px"></div>
-      <!-- Stats row -->
-      <div class="grid-4">
-        <div class="stat-card" style="background:linear-gradient(135deg,rgba(8,145,178,0.07),rgba(8,145,178,0.02))">
-          <div class="icon-wrap" style="background:rgba(8,145,178,0.1)">
-            <svg fill="none" stroke="#0891b2" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-          </div>
-          <div class="val" id="stat-nav">—</div>
-          <div class="lbl">Último NAV · <span id="stat-nav-date" style="color:var(--dimmer)">—</span></div>
-        </div>
-
-        <div class="stat-card" style="background:linear-gradient(135deg,rgba(124,58,237,0.07),rgba(124,58,237,0.02))">
-          <div class="icon-wrap" style="background:rgba(124,58,237,0.1)">
-            <svg fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-              <polyline points="17 6 23 6 23 12"/>
-            </svg>
-          </div>
-          <div class="val" id="stat-period-ret">—</div>
-          <div class="lbl" id="stat-period-lbl">Retorno ALL</div>
-        </div>
-
-        <div class="stat-card" style="background:linear-gradient(135deg,rgba(5,150,105,0.07),rgba(5,150,105,0.02))">
-          <div class="icon-wrap" style="background:rgba(5,150,105,0.1)">
-            <svg fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-          </div>
-          <div class="val" id="stat-ytd">—</div>
-          <div class="lbl">Retorno <span id="stat-ytd-label">2026 YTD</span></div>
-        </div>
-
-        <div class="stat-card" style="background:linear-gradient(135deg,rgba(217,119,6,0.07),rgba(217,119,6,0.02))">
-          <div class="icon-wrap" style="background:rgba(217,119,6,0.1)">
-            <svg fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-              <line x1="16" y1="7" x2="22" y2="7"/><line x1="22" y1="7" x2="22" y2="13"/>
-            </svg>
-          </div>
-          <div class="sub-row">
-            <div class="sub-item">
-              <div class="sub-val" id="stat-high52" style="color:#059669">—</div>
-              <div class="sub-lbl">Máx 52s</div>
-            </div>
-            <div class="sub-item" style="border-left:1px solid var(--border);padding-left:12px">
-              <div class="sub-val" id="stat-low52" style="color:#e11d48">—</div>
-              <div class="sub-lbl">Mín 52s</div>
-            </div>
-          </div>
-          <div class="lbl" style="margin-top:4px">Rango 52 semanas</div>
-        </div>
-      </div>
-
-      <!-- NAV Chart -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">NAV Histórico</div>
-            <div class="card-sub" id="nav-chart-sub">Selecciona un fondo</div>
-          </div>
-          <div class="period-btns">
-            <button class="period-btn" data-period="1M" onclick="setPeriod('1M')">1M</button>
-            <button class="period-btn" data-period="6M" onclick="setPeriod('6M')">6M</button>
-            <button class="period-btn" data-period="1Y" onclick="setPeriod('1Y')">1Y</button>
-            <button class="period-btn" data-period="3Y" onclick="setPeriod('3Y')">3Y</button>
-            <button class="period-btn" data-period="5Y" onclick="setPeriod('5Y')">5Y</button>
-            <button class="period-btn active" data-period="ALL" onclick="setPeriod('ALL')">ALL</button>
-          </div>
-        </div>
-        <div class="chart-wrap-lg"><canvas id="chart-nav"></canvas></div>
-      </div>
-
-      <!-- Annual Returns Chart -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Rentabilidad por Año</div>
-            <div class="card-sub">2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023 · 2024 · 2025 · 2026 YTD</div>
-          </div>
-          <span class="badge badge-violet" id="annual-isin-badge">—</span>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-annual"></canvas></div>
-      </div>
-
-      <!-- Rentabilidad por Periodo Chart -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Rentabilidad por Periodo</div>
-            <div class="card-sub">Rentabilidad media anual (CAGR) · 1A · 3A · 5A · 7A · 10A · ALL</div>
-          </div>
-          <span class="badge badge-cyan" id="periodo-isin-badge">—</span>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-periodo"></canvas></div>
       </div>
 
       </div><!-- /#fund-panel -->

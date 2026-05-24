@@ -30,24 +30,52 @@ let DB_INFO   = {};   // fila completa de info general por ISIN
 let DB_LOADED = false;
 
 function cargarDatos() {
-  Papa.parse('data/5ejemplos-info general.csv', {
+  // Detectar ruta base automáticamente
+  const pathname = window.location.pathname;
+  let basePath = './';
+
+  // Si estamos en GitHub Pages (detectar por /repositorio/ en la ruta)
+  if (pathname.includes('/Fund-dashboard/')) {
+    basePath = '/Fund-dashboard/';
+  }
+
+  const infoPath = basePath + 'data/5ejemplos-info general.csv';
+  const navPath = basePath + 'data/5ejemplos-nav.csv';
+
+  Papa.parse(infoPath, {
     download: true,
     header: true,
     delimiter: ';',
     skipEmptyLines: true,
+    encoding: 'UTF-8',
     complete: function(resInfo) {
-      Papa.parse('data/5ejemplos-nav.csv', {
+      if (!resInfo.data || !resInfo.data.length) {
+        mostrarErrorCSV();
+        return;
+      }
+      Papa.parse(navPath, {
         download: true,
         header: true,
         delimiter: ';',
         skipEmptyLines: true,
+        encoding: 'UTF-8',
         complete: function(resNav) {
+          if (!resNav.data || !resNav.data.length) {
+            mostrarErrorCSV();
+            return;
+          }
           procesarDatos(resInfo.data, resNav.data);
         },
-        error: function() { mostrarErrorCSV(); }
+        error: function(err) {
+          console.error('Error cargando NAV CSV:', err);
+          mostrarErrorCSV();
+        }
       });
     },
-    error: function() { mostrarErrorCSV(); }
+    error: function(err) {
+      console.error('Error cargando Info CSV:', err);
+      mostrarErrorCSV();
+    }
   });
 }
 
@@ -496,15 +524,6 @@ function loadFund(isin) {
   if (fiNavEl) fiNavEl.textContent = latestNAV.toFixed(2);
   if (fiDateEl) fiDateEl.textContent = latestDate;
 
-  // Nombre del fondo (fila dentro del selector)
-  const nameRow = document.getElementById('fund-name-row');
-  if (name) {
-    document.getElementById('fund-name-text').textContent = name;
-    document.getElementById('fund-isin-chip').textContent = isin;
-    nameRow.classList.add('visible');
-  } else {
-    nameRow.classList.remove('visible');
-  }
   const badge = name ? (name.length > 40 ? name.slice(0, 37) + '…' : name) : isin;
   document.getElementById('annual-isin-badge').textContent  = badge;
   document.getElementById('periodo-isin-badge').textContent = badge;
