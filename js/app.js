@@ -208,13 +208,17 @@ function makeChart(id, config) {
 function filterByPeriod(dates, navs, period) {
   if (period === 'ALL' || !dates.length) return { dates, navs };
   const latest = new Date(dates[dates.length - 1] + 'T00:00:00');
-  const cutoff = new Date(latest);
-  if      (period === '1M') cutoff.setMonth(cutoff.getMonth() - 1);
-  else if (period === '6M') cutoff.setMonth(cutoff.getMonth() - 6);
-  else if (period === '1Y') cutoff.setFullYear(cutoff.getFullYear() - 1);
-  else if (period === '3Y') cutoff.setFullYear(cutoff.getFullYear() - 3);
-  else if (period === '5Y') cutoff.setFullYear(cutoff.getFullYear() - 5);
-  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  let cutoffStr;
+  if (period === 'YTD') {
+    cutoffStr = new Date().getFullYear() + '-01-01';
+  } else {
+    const cutoff = new Date(latest);
+    if      (period === '1Y')  cutoff.setFullYear(cutoff.getFullYear() - 1);
+    else if (period === '3Y')  cutoff.setFullYear(cutoff.getFullYear() - 3);
+    else if (period === '5Y')  cutoff.setFullYear(cutoff.getFullYear() - 5);
+    else if (period === '10Y') cutoff.setFullYear(cutoff.getFullYear() - 10);
+    cutoffStr = cutoff.toISOString().slice(0, 10);
+  }
   const idx = dates.findIndex(d => d >= cutoffStr);
   if (idx === -1) return { dates, navs };
   return { dates: dates.slice(idx), navs: navs.slice(idx) };
@@ -618,7 +622,7 @@ function renderNAVChart(dates, navs, period) {
           titleColor: '#94a3b8', bodyColor: '#f1f5f9', padding: 10,
           callbacks: {
             title: ctx => dates[ctx[0].dataIndex],
-            label: ctx => '  NAV: ' + ctx.raw.toFixed(4)
+            label: ctx => '  NAV: ' + ctx.raw.toFixed(2)
           }
         }
       },
