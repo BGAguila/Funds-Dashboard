@@ -265,7 +265,7 @@ function computeAnnualReturns(dates, navs) {
       });
     }
   }
-  return results;
+  return results.reverse();
 }
 
 function computeMaxDrawdown(series) {
@@ -617,6 +617,7 @@ function renderNAVChart(dates, navs, period) {
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
+        datalabels: { display: false },
         tooltip: {
           backgroundColor: '#1e293b', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
           titleColor: '#94a3b8', bodyColor: '#f1f5f9', padding: 10,
@@ -664,6 +665,13 @@ function renderAnnualChart(annual) {
           backgroundColor: '#1e293b', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
           titleColor: '#94a3b8', bodyColor: '#f1f5f9', padding: 10,
           callbacks: { label: ctx => '  ' + fmtPct(ctx.raw) }
+        },
+        datalabels: {
+          anchor: 'end',
+          align: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'top' : 'bottom',
+          formatter: (v) => fmtPct(v),
+          color: '#000000',
+          font: { weight: 'bold', size: 10 }
         }
       },
       scales: {
@@ -676,7 +684,7 @@ function renderAnnualChart(annual) {
 
 function renderPeriodoChart(isin) {
   if (!DB_CAGR[isin]) return;
-  const all_labels = ['1A', '3A', '5A', '7A', '10A', 'ALL'];
+  const all_labels = ['1A', '3A', '5A', '7A', '10A'];
   const raw = DB_CAGR[isin];
 
   const labels = all_labels.filter(l => raw[l] !== null);
@@ -700,6 +708,13 @@ function renderPeriodoChart(isin) {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
+        datalabels: {
+          anchor: 'end',
+          align: ctx => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'top' : 'bottom',
+          formatter: v => fmtPct(v),
+          color: '#000000',
+          font: { weight: 'bold', size: 10 }
+        },
         tooltip: {
           backgroundColor: '#1e2535', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
           titleColor: '#94a3b8', bodyColor: '#f1f5f9', padding: 10,
@@ -973,6 +988,7 @@ function runBacktest() {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { labels: { color: tickColor, font: { size: 11 } } },
+        datalabels: { display: false },
         tooltip: {
           mode: 'index', intersect: false,
           callbacks: { label: ctx => ' €' + ctx.raw.toLocaleString('es', { maximumFractionDigits: 0 }) }
@@ -998,7 +1014,10 @@ function runBacktest() {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: tickColor, font: { size: 11 } } } },
+      plugins: {
+        legend: { labels: { color: tickColor, font: { size: 11 } } },
+        datalabels: { display: false }
+      },
       scales: {
         x: { ticks: { color: tickColor }, grid: { color: gridColor } },
         y: { ticks: { color: tickColor, callback: v => v + '%' }, grid: { color: gridColor } }

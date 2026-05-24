@@ -6,6 +6,7 @@
   <title>EagleFund</title>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -708,28 +709,28 @@
           <div class="chart-wrap-lg"><canvas id="chart-nav"></canvas></div>
         </div>
 
-        <!-- Annual Returns Chart -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Rentabilidad por Año</div>
-              <div class="card-sub">2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023 · 2024 · 2025 · 2026 YTD</div>
+        <div class="grid-2">
+          <!-- Annual Returns Chart -->
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Rentabilidad por Año</div>
+              </div>
+              <span class="badge badge-violet" id="annual-isin-badge">—</span>
             </div>
-            <span class="badge badge-violet" id="annual-isin-badge">—</span>
+            <div class="chart-wrap"><canvas id="chart-annual"></canvas></div>
           </div>
-          <div class="chart-wrap"><canvas id="chart-annual"></canvas></div>
-        </div>
 
-        <!-- Rentabilidad por Periodo Chart -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Rentabilidad por Periodo</div>
-              <div class="card-sub">Rentabilidad media anual (CAGR) · 1A · 3A · 5A · 7A · 10A · ALL</div>
+          <!-- Rentabilidad por Periodo Chart -->
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Rentabilidad Anualizada por Periodo</div>
+              </div>
+              <span class="badge badge-cyan" id="periodo-isin-badge">—</span>
             </div>
-            <span class="badge badge-cyan" id="periodo-isin-badge">—</span>
+            <div class="chart-wrap"><canvas id="chart-periodo"></canvas></div>
           </div>
-          <div class="chart-wrap"><canvas id="chart-periodo"></canvas></div>
         </div>
       </div>
 
