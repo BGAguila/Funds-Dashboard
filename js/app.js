@@ -294,7 +294,7 @@ function fmtPct(v) {
 // INICIO — FUND ANALYSIS
 // ============================================================
 let currentIsin  = null;
-let currentPeriod = 'ALL';
+let currentPeriod = 'YTD';
 let isinPageInit  = false;
 
 function initFundPage() {
@@ -416,7 +416,7 @@ function populateFundInfo(isin) {
     const tbody = document.getElementById('fi-annual-body');
     if (tbody) {
       tbody.innerHTML = '';
-      for (let y = 2025; y >= 2016; y--) {
+      for (let y = 2025; y >= 2018; y--) {
         const retRaw = info[String(y)];
         const n = pn(retRaw);
         if (n === null) continue;
@@ -617,7 +617,7 @@ function renderNAVChart(dates, navs, period) {
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
-        datalabels: { display: false },
+        datalabels: false,
         tooltip: {
           backgroundColor: '#1e293b', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
           titleColor: '#94a3b8', bodyColor: '#f1f5f9', padding: 10,
@@ -659,7 +659,7 @@ function renderAnnualChart(annual) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      layout: { padding: { top: 24 } },
+      layout: { padding: { top: 30 } },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -673,12 +673,12 @@ function renderAnnualChart(annual) {
           formatter: v => fmtPct(v),
           color: '#000000',
           font: { weight: 'bold', size: 10 },
-          clip: false
+          clamp: false
         }
       },
       scales: {
-        x: { ticks: { color: tickColor, font: { size: 11 } }, grid: { color: gridColor } },
-        y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => v + '%' }, grid: { color: gridColor } }
+        x: { ticks: { color: '#000000', font: { size: 11, weight: 'bold' } }, grid: { color: gridColor } },
+        y: { ticks: { color: tickColor, font: { size: 11 }, stepSize: 1, callback: v => v + '%' }, grid: { color: gridColor } }
       }
     }
   });
@@ -708,7 +708,7 @@ function renderPeriodoChart(isin) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      layout: { padding: { top: 24 } },
+      layout: { padding: { top: 30 } },
       plugins: {
         legend: { display: false },
         datalabels: {
@@ -717,7 +717,7 @@ function renderPeriodoChart(isin) {
           formatter: v => fmtPct(v),
           color: '#000000',
           font: { weight: 'bold', size: 10 },
-          clip: false
+          clamp: false
         },
         tooltip: {
           backgroundColor: '#1e2535', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
@@ -734,11 +734,11 @@ function renderPeriodoChart(isin) {
       },
       scales: {
         x: {
-          ticks: { color: tickColor, font: { size: 12, weight: '600' } },
+          ticks: { color: '#000000', font: { size: 12, weight: 'bold' } },
           grid: { color: gridColor }
         },
         y: {
-          ticks: { color: tickColor, font: { size: 11 }, callback: v => v.toFixed(1) + '%' },
+          ticks: { color: tickColor, font: { size: 11 }, stepSize: 1, callback: v => v.toFixed(0) + '%' },
           grid: { color: gridColor }
         }
       }
@@ -992,7 +992,7 @@ function runBacktest() {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { labels: { color: tickColor, font: { size: 11 } } },
-        datalabels: { display: false },
+        datalabels: false,
         tooltip: {
           mode: 'index', intersect: false,
           callbacks: { label: ctx => ' €' + ctx.raw.toLocaleString('es', { maximumFractionDigits: 0 }) }
