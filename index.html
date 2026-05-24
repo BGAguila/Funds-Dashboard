@@ -347,6 +347,144 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #059669; animation: pulse 2s infinite; }
 
+    /* ── FUND IDENTITY HEADER ── */
+    .fund-identity {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    }
+    .fi-name {
+      font-size: 17px; font-weight: 700;
+      color: #ffffff; letter-spacing: -0.02em; line-height: 1.35;
+      margin-bottom: 5px;
+    }
+    .fi-isin-label {
+      font-size: 11px; font-family: 'DM Mono', monospace;
+      color: rgba(255,255,255,0.42); letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .fi-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .fi-badge {
+      font-size: 10px; padding: 3px 9px;
+      border-radius: 20px; font-weight: 600; letter-spacing: 0.04em;
+    }
+    .fi-badge-cyan   { background: rgba(8,145,178,0.22);  color: #38bdf8;  border: 1px solid rgba(8,145,178,0.3); }
+    .fi-badge-violet { background: rgba(124,58,237,0.22); color: #a78bfa;  border: 1px solid rgba(124,58,237,0.3); }
+    .fi-badge-emerald{ background: rgba(5,150,105,0.22);  color: #34d399;  border: 1px solid rgba(5,150,105,0.3); }
+    .fi-badge-amber  { background: rgba(217,119,6,0.22);  color: #fbbf24;  border: 1px solid rgba(217,119,6,0.3); }
+    .fi-badge-rose   { background: rgba(225,29,72,0.22);  color: #fb7185;  border: 1px solid rgba(225,29,72,0.3); }
+    .fi-right { text-align: right; flex-shrink: 0; }
+    .fi-nav-lbl { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .fi-nav-val { font-size: 28px; font-weight: 800; color: #ffffff; letter-spacing: -0.04em; line-height: 1; }
+    .fi-nav-date { font-size: 10px; color: rgba(255,255,255,0.38); margin-top: 5px; font-family: 'DM Mono', monospace; }
+    .fi-stars { color: #f59e0b; font-size: 16px; letter-spacing: 1px; margin-top: 6px; }
+    .fi-srri-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+    .fi-srri-box {
+      width: 24px; height: 20px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.15s;
+    }
+    .fi-srri-box.active {
+      color: #fff; background: #0891b2; border-color: #0891b2;
+      transform: scaleY(1.25);
+    }
+
+    /* ── FUND TABS ── */
+    .fund-tabs {
+      display: flex; gap: 4px;
+      background: var(--card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 5px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .fund-tab-btn {
+      flex: 1; padding: 8px 10px;
+      border: none; border-radius: 8px;
+      background: none; font-size: 12px; font-weight: 600;
+      color: var(--dim); font-family: inherit; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .fund-tab-btn:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+    .fund-tab-btn.active { background: rgba(8,145,178,0.12); color: #0891b2; }
+    .fund-tab-panel { display: none; }
+    .fund-tab-panel.active { display: block; }
+
+    /* ── INFO ROWS (Resumen / Otros) ── */
+    .info-2col {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-radius: 10px; border: 1px solid var(--border-light);
+      overflow: hidden; background: var(--card);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      margin-bottom: 14px;
+    }
+    @media(max-width:700px){ .info-2col { grid-template-columns: 1fr; } }
+    .info-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-key { color: var(--muted); flex-shrink: 0; margin-right: 8px; }
+    .info-val { color: var(--text); font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── RETURNS GRID (Rentabilidad) ── */
+    .ret-grid {
+      display: flex; gap: 0;
+      border-radius: 10px; border: 1px solid var(--border-light);
+      overflow: hidden; background: var(--card);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      margin-bottom: 14px;
+    }
+    .ret-col {
+      flex: 1; text-align: center; padding: 14px 6px;
+      border-right: 1px solid var(--border);
+    }
+    .ret-col:last-child { border-right: none; }
+    .ret-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--dimmer); font-weight: 700; margin-bottom: 7px; }
+    .ret-val { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+    .ret-val.up   { color: #059669; }
+    .ret-val.down { color: #e11d48; }
+
+    /* ── ALLOC BARS (Cartera) ── */
+    .alloc-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .alloc-row:last-child { border-bottom: none; }
+    .alloc-lbl { width: 120px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+    .alloc-bar-wrap { flex: 1; background: rgba(0,0,0,0.07); border-radius: 4px; height: 8px; overflow: hidden; }
+    .alloc-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .alloc-pct { width: 44px; text-align: right; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); flex-shrink: 0; }
+
+    /* ── RISK SCALE ── */
+    .srri-scale { display: flex; gap: 5px; margin: 16px 0; }
+    .srri-box {
+      flex: 1; height: 32px; border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      color: rgba(0,0,0,0.35); transition: all 0.2s;
+    }
+    .srri-box.s1,.srri-box.s2 { background: #dcfce7; }
+    .srri-box.s3,.srri-box.s4 { background: #fef9c3; }
+    .srri-box.s5,.srri-box.s6 { background: #ffedd5; }
+    .srri-box.s7 { background: #fee2e2; }
+    .srri-box.active {
+      color: #fff; transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .srri-box.s1.active,.srri-box.s2.active { background: #16a34a; }
+    .srri-box.s3.active,.srri-box.s4.active { background: #ca8a04; }
+    .srri-box.s5.active,.srri-box.s6.active { background: #ea580c; }
+    .srri-box.s7.active { background: #dc2626; }
+    .srri-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--dim); margin-bottom: 4px; }
+
     /* SCROLLBAR */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -444,9 +582,162 @@
         </div>
       </div>
 
-      <!-- Fund panel: cabecera con nombre + ISIN que envuelve toda la info del fondo -->
+      <!-- Fund panel: envuelve toda la info del fondo -->
       <div id="fund-panel" style="display:none">
 
+      <!-- ── FUND IDENTITY HEADER ── -->
+      <div class="fund-identity">
+        <div style="flex:1;min-width:0">
+          <div class="fi-name" id="fi-name">—</div>
+          <div class="fi-isin-label" id="fi-isin-label">—</div>
+          <div class="fi-badges" id="fi-badges"></div>
+          <div class="fi-srri-row" id="fi-srri-row">
+            <span style="font-size:10px;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.07em;margin-right:4px">Riesgo</span>
+            <div class="fi-srri-box s1" data-v="1">1</div>
+            <div class="fi-srri-box s2" data-v="2">2</div>
+            <div class="fi-srri-box s3" data-v="3">3</div>
+            <div class="fi-srri-box s4" data-v="4">4</div>
+            <div class="fi-srri-box s5" data-v="5">5</div>
+            <div class="fi-srri-box s6" data-v="6">6</div>
+            <div class="fi-srri-box s7" data-v="7">7</div>
+          </div>
+        </div>
+        <div class="fi-right">
+          <div class="fi-nav-lbl">Último NAV</div>
+          <div class="fi-nav-val" id="fi-nav-val">—</div>
+          <div class="fi-nav-date" id="fi-nav-date-lbl">—</div>
+          <div class="fi-stars" id="fi-stars"></div>
+        </div>
+      </div>
+
+      <!-- ── TAB NAVIGATION ── -->
+      <div class="fund-tabs">
+        <button class="fund-tab-btn active" data-tab="resumen"       onclick="switchFundTab('resumen')">📊 Resumen</button>
+        <button class="fund-tab-btn"        data-tab="rentabilidad"  onclick="switchFundTab('rentabilidad')">📈 Rentabilidad</button>
+        <button class="fund-tab-btn"        data-tab="cartera"       onclick="switchFundTab('cartera')">💼 Cartera</button>
+        <button class="fund-tab-btn"        data-tab="riesgo"        onclick="switchFundTab('riesgo')">⚖️ Riesgo</button>
+        <button class="fund-tab-btn"        data-tab="otros"         onclick="switchFundTab('otros')">📋 Otros</button>
+      </div>
+
+      <!-- ── TAB: RESUMEN ── -->
+      <div class="fund-tab-panel active" id="tab-resumen">
+        <div class="info-2col">
+          <div class="info-row"><span class="info-key">Gestora</span><span class="info-val" id="fi-gestora">—</span></div>
+          <div class="info-row"><span class="info-key">Marca</span><span class="info-val" id="fi-marca">—</span></div>
+          <div class="info-row"><span class="info-key">Estructura Legal</span><span class="info-val" id="fi-estructura">—</span></div>
+          <div class="info-row"><span class="info-key">País Domicilio</span><span class="info-val" id="fi-pais">—</span></div>
+          <div class="info-row"><span class="info-key">Moneda</span><span class="info-val" id="fi-moneda">—</span></div>
+          <div class="info-row"><span class="info-key">Tipo Activo</span><span class="info-val" id="fi-tipo">—</span></div>
+          <div class="info-row"><span class="info-key">Clase Activo</span><span class="info-val" id="fi-clase">—</span></div>
+          <div class="info-row"><span class="info-key">Fecha Creación</span><span class="info-val" id="fi-creacion">—</span></div>
+          <div class="info-row"><span class="info-key">AUM Total</span><span class="info-val" id="fi-aum-total">—</span></div>
+          <div class="info-row"><span class="info-key">AUM Clase</span><span class="info-val" id="fi-aum-clase">—</span></div>
+          <div class="info-row"><span class="info-key">Coste Ongoing</span><span class="info-val" id="fi-ongoing">—</span></div>
+          <div class="info-row"><span class="info-key">Comisión Gestión</span><span class="info-val" id="fi-comision">—</span></div>
+        </div>
+      </div>
+
+      <!-- ── TAB: RENTABILIDAD ── -->
+      <div class="fund-tab-panel" id="tab-rentabilidad">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-header"><div><div class="card-title">Rentabilidades</div><div class="card-sub">Datos de fuente Morningstar</div></div></div>
+          <div class="ret-grid" id="fi-ret-grid">
+            <div class="ret-col"><div class="ret-lbl">1D</div><div class="ret-val" id="ret-1d">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">1S</div><div class="ret-val" id="ret-1s">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">1M</div><div class="ret-val" id="ret-1m">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">3M</div><div class="ret-val" id="ret-3m">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">YTD</div><div class="ret-val" id="ret-ytd">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">1A</div><div class="ret-val" id="ret-1a">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">3A</div><div class="ret-val" id="ret-3a">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">5A</div><div class="ret-val" id="ret-5a">—</div></div>
+            <div class="ret-col"><div class="ret-lbl">10A</div><div class="ret-val" id="ret-10a">—</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Historial Anual</div></div>
+          <div class="table-wrap" style="margin:0;border:none;box-shadow:none">
+            <table id="fi-annual-table">
+              <thead><tr><th>Año</th><th style="text-align:right">Rentabilidad</th><th style="text-align:right">Rank Categoría</th></tr></thead>
+              <tbody id="fi-annual-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: CARTERA ── -->
+      <div class="fund-tab-panel" id="tab-cartera">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Distribución de Activos</div></div>
+            <div id="fi-alloc-wrap"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Distribución Geográfica</div></div>
+            <div id="fi-geo-wrap"></div>
+          </div>
+        </div>
+        <div class="card" id="fi-rf-card">
+          <div class="card-header"><div class="card-title">Renta Fija</div><div class="card-sub">Datos del fondo de renta fija</div></div>
+          <div class="info-2col" style="margin-bottom:0">
+            <div class="info-row"><span class="info-key">Duración Efectiva</span><span class="info-val" id="fi-dur">—</span></div>
+            <div class="info-row"><span class="info-key">TIR (YTM)</span><span class="info-val" id="fi-ytm">—</span></div>
+            <div class="info-row"><span class="info-key">Cupón Medio</span><span class="info-val" id="fi-coupon">—</span></div>
+            <div class="info-row"><span class="info-key">Calidad Crediticia</span><span class="info-val" id="fi-cq">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: RIESGO ── -->
+      <div class="fund-tab-panel" id="tab-riesgo">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-header"><div class="card-title">Nivel de Riesgo SRRI</div></div>
+          <div class="srri-labels"><span>Menor riesgo</span><span>Mayor riesgo</span></div>
+          <div class="srri-scale" id="fi-srri-scale">
+            <div class="srri-box s1" data-v="1">1</div>
+            <div class="srri-box s2" data-v="2">2</div>
+            <div class="srri-box s3" data-v="3">3</div>
+            <div class="srri-box s4" data-v="4">4</div>
+            <div class="srri-box s5" data-v="5">5</div>
+            <div class="srri-box s6" data-v="6">6</div>
+            <div class="srri-box s7" data-v="7">7</div>
+          </div>
+        </div>
+        <div class="info-2col">
+          <div class="info-row"><span class="info-key">Volatilidad 1A</span><span class="info-val" id="fi-vol1">—</span></div>
+          <div class="info-row"><span class="info-key">Volatilidad 3A</span><span class="info-val" id="fi-vol3">—</span></div>
+          <div class="info-row"><span class="info-key">Volatilidad 5A</span><span class="info-val" id="fi-vol5">—</span></div>
+          <div class="info-row"><span class="info-key">Sharpe 1A</span><span class="info-val" id="fi-sh1">—</span></div>
+          <div class="info-row"><span class="info-key">Sharpe 3A</span><span class="info-val" id="fi-sh3">—</span></div>
+          <div class="info-row"><span class="info-key">Sharpe 5A</span><span class="info-val" id="fi-sh5">—</span></div>
+          <div class="info-row"><span class="info-key">Max Drawdown 1A</span><span class="info-val" id="fi-dd1">—</span></div>
+          <div class="info-row"><span class="info-key">Max Drawdown 3A</span><span class="info-val" id="fi-dd3">—</span></div>
+          <div class="info-row"><span class="info-key">Max Drawdown 5A</span><span class="info-val" id="fi-dd5">—</span></div>
+          <div class="info-row"><span class="info-key">Max Drawdown Hist.</span><span class="info-val" id="fi-ddmax">—</span></div>
+          <div class="info-row"><span class="info-key">Rating Riesgo MS 3A</span><span class="info-val" id="fi-riskms3">—</span></div>
+          <div class="info-row"><span class="info-key">Rating Rent. MS 3A</span><span class="info-val" id="fi-retms3">—</span></div>
+        </div>
+      </div>
+
+      <!-- ── TAB: OTROS ── -->
+      <div class="fund-tab-panel" id="tab-otros">
+        <div class="info-2col">
+          <div class="info-row"><span class="info-key">Categoría MS</span><span class="info-val" id="fi-cat">—</span></div>
+          <div class="info-row"><span class="info-key">Rating ★ MS</span><span class="info-val" id="fi-rating-ms">—</span></div>
+          <div class="info-row"><span class="info-key">Índice Primario</span><span class="info-val" id="fi-idx-prim">—</span></div>
+          <div class="info-row"><span class="info-key">Benchmark Prosp.</span><span class="info-val" id="fi-benchmark">—</span></div>
+          <div class="info-row"><span class="info-key">Índice BestFit</span><span class="info-val" id="fi-bestfit">—</span></div>
+          <div class="info-row"><span class="info-key">Fin Año Fiscal</span><span class="info-val" id="fi-fiscal">—</span></div>
+          <div class="info-row"><span class="info-key">Estado</span><span class="info-val" id="fi-estado">—</span></div>
+          <div class="info-row"><span class="info-key">UCITS</span><span class="info-val" id="fi-ucits-val">—</span></div>
+          <div class="info-row"><span class="info-key">Yield 12M</span><span class="info-val" id="fi-yield">—</span></div>
+          <div class="info-row"><span class="info-key">Acum/Dist</span><span class="info-val" id="fi-acumdist">—</span></div>
+          <div class="info-row"><span class="info-key">Nº Activos Total</span><span class="info-val" id="fi-nactivos">—</span></div>
+          <div class="info-row"><span class="info-key">Top 10 Concentrac.</span><span class="info-val" id="fi-top10">—</span></div>
+        </div>
+      </div>
+
+      <!-- ── EXISTING STATS ROW ── -->
+      <div style="height:6px"></div>
       <!-- Stats row -->
       <div class="grid-4">
         <div class="stat-card" style="background:linear-gradient(135deg,rgba(8,145,178,0.07),rgba(8,145,178,0.02))">
