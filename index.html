@@ -347,6 +347,32 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #059669; animation: pulse 2s infinite; }
 
+    /* FUND PANEL */
+    .fund-panel-header {
+      background: var(--card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .fund-panel-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .fund-panel-isin {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--cyan);
+      margin-top: 4px;
+      letter-spacing: 0.03em;
+    }
+
     /* SCROLLBAR */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -443,6 +469,16 @@
           <span class="fund-isin-chip" id="fund-isin-chip"></span>
         </div>
       </div>
+
+      <!-- Fund panel: cabecera con nombre + ISIN que envuelve toda la info del fondo -->
+      <div id="fund-panel" style="display:none">
+
+        <div class="fund-panel-header">
+          <div>
+            <div class="fund-panel-name" id="panel-fund-name">—</div>
+            <div class="fund-panel-isin" id="panel-fund-isin">—</div>
+          </div>
+        </div>
 
       <!-- Stats row -->
       <div class="grid-4">
@@ -542,6 +578,8 @@
         </div>
         <div class="chart-wrap"><canvas id="chart-periodo"></canvas></div>
       </div>
+
+      </div><!-- /#fund-panel -->
 
     </section>
 
