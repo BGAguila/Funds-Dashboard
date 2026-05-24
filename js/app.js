@@ -319,11 +319,8 @@ function loadFund(isin) {
   const latestNAV  = navs[navs.length - 1];
   const latestDate = dates[dates.length - 1];
 
-  // Mostrar panel principal y rellenar cabecera nombre + ISIN
-  const name = _getName(isin);
+  // Mostrar panel principal
   document.getElementById('fund-panel').style.display = 'block';
-  document.getElementById('panel-fund-name').textContent = name || isin;
-  document.getElementById('panel-fund-isin').textContent = isin;
 
   // Nombre del fondo (fila dentro del selector)
   const nameRow = document.getElementById('fund-name-row');
