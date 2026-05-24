@@ -327,200 +327,151 @@ function switchFundTab(tab) {
 
 // ── POPULATE FUND INFO FROM DB_INFO ──
 function populateFundInfo(isin) {
-  const info = DB_INFO[isin];
-  if (!info) return;
+  try {
+    const info = DB_INFO[isin];
+    if (!info) return;
 
-  // Helper: safe num formatting
-  function pn(v)  { const n = parseNum(v); return n; }
-  function fmtPct2(v) { const n = pn(v); return n !== null ? (n >= 0 ? '+' : '') + n.toFixed(2) + '%' : '—'; }
-  function fmtNum2(v) { const n = pn(v); return n !== null ? n.toFixed(2) : '—'; }
-  function fmtM(v)    { const n = pn(v); if (n === null) return '—'; return n >= 1000 ? (n/1000).toFixed(2) + ' Bn€' : n.toFixed(1) + ' M€'; }
-  function fmtRetVal(elId, raw) {
-    const n = pn(raw);
-    const el = document.getElementById(elId);
-    if (!el) return;
-    if (n !== null) {
-      el.textContent = (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
-      el.className = 'ret-val ' + (n > 0 ? 'up' : n < 0 ? 'down' : '');
-    } else { el.textContent = '—'; el.className = 'ret-val'; }
+    // Helpers
+    function pn(v)  { const n = parseNum(v); return n; }
+    function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val || '—'; }
+
+    // ── IDENTITY HEADER ──
+    setText('fi-name', info['Nombre']);
+    document.getElementById('fi-isin-label').textContent = isin;
+
+    // Badges
+    const badgesEl = document.getElementById('fi-badges');
+    badgesEl.innerHTML = '';
+    function addBadge(text, cls) { if (!text) return; const s = document.createElement('span'); s.className = 'fi-badge ' + cls; s.textContent = text; badgesEl.appendChild(s); }
+    addBadge(info['Clase Activo'], 'fi-badge-cyan');
+    addBadge(info['Moneda'], 'fi-badge-violet');
+    if (info['UCITS'] === 'true') addBadge('UCITS', 'fi-badge-emerald');
+    addBadge(info['Estructura Legal'], 'fi-badge-amber');
+
+    // SRRI en header
+    const srriVal = parseInt(info['SRRI (quote)'] || '0', 10);
+    document.querySelectorAll('#fi-srri-row .fi-srri-box').forEach(function(box) { box.classList.toggle('active', parseInt(box.dataset.v, 10) === srriVal); });
+
+    // Stars
+    const stars = parseInt(info['Rating ★'] || '0', 10);
+    document.getElementById('fi-stars').textContent = stars > 0 ? '★'.repeat(stars) + '☆'.repeat(5 - stars) : '';
+
+    // ── TAB RESUMEN ──
+    setText('fi-gestora',   info['Gestora']);
+    setText('fi-marca',     info['Marca Gestora']);
+    setText('fi-estructura',info['Estructura Legal']);
+    setText('fi-pais',      info['País Domicilio']);
+    setText('fi-moneda',    info['Moneda']);
+    setText('fi-tipo',      info['Tipo Activo']);
+    setText('fi-clase',     info['Clase Activo']);
+    setText('fi-creacion',  (info['Creación (sp)'] || '').split('T')[0] || '—');
+    const aumT = pn(info['Patr Total (M)']); setText('fi-aum-total', aumT !== null ? aumT.toFixed(1) + ' M€' : '—');
+    const aumC = pn(info['Patr Clase (M)']); setText('fi-aum-clase', aumC !== null ? aumC.toFixed(1) + ' M€' : '—');
+    const oc = pn(info['Coste Ongoing %']); setText('fi-ongoing', oc !== null ? oc.toFixed(2) + '%' : '—');
+    const cm = pn(info['Comis.Gestión %']); setText('fi-comision', cm !== null ? cm.toFixed(2) + '%' : '—');
+
+    // ── TAB RENTABILIDAD ──
+    ['1D', '1S', '1M', '3M', 'YTD', '1A', '3A', '5A', '10A'].forEach(function(p) {
+      const n = pn(info['Rent ' + p]);
+      const el = document.getElementById('ret-' + p.toLowerCase());
+      if (el && n !== null) {
+        el.textContent = (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+        el.className = 'ret-val ' + (n > 0 ? 'up' : n < 0 ? 'down' : '');
+      } else if (el) { el.textContent = '—'; el.className = 'ret-val'; }
+    });
+
+    // Historial anual
+    const tbody = document.getElementById('fi-annual-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      for (let y = 2025; y >= 2016; y--) {
+        const retRaw = info[String(y)];
+        const n = pn(retRaw);
+        if (n === null) continue;
+        const rankRaw = info['Rank ' + y];
+        const catRaw  = info['Cat ' + y];
+        const rankStr = rankRaw && catRaw ? rankRaw + ' / ' + catRaw : (rankRaw || '—');
+        const tr = document.createElement('tr');
+        const pctStr = (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+        tr.innerHTML = '<td class="name">' + y + '</td><td class="mono ' + (n >= 0 ? 'up' : 'down') + '" style="text-align:right">' + pctStr + '</td><td class="mono" style="text-align:right">' + rankStr + '</td>';
+        tbody.appendChild(tr);
+      }
+    }
+
+    // ── TAB CARTERA ──
+    const allocWrap = document.getElementById('fi-alloc-wrap');
+    if (allocWrap) {
+      allocWrap.innerHTML = '';
+      const allocMap = { 'Renta Variable': '% Acciones', 'Renta Fija': '% Bonos', 'Efectivo': '% Efectivo', 'Convertibles': '% Convertible', 'Otros': '% Otro' };
+      const colors = { 'Renta Variable': '#0891b2', 'Renta Fija': '#7c3aed', 'Efectivo': '#059669', 'Convertibles': '#d97706', 'Otros': '#64748b' };
+      for (const lbl in allocMap) {
+        const n = pn(info[allocMap[lbl]]);
+        if (n === null || n === 0) continue;
+        const abs = Math.abs(n);
+        allocWrap.innerHTML += '<div class="alloc-row"><span class="alloc-lbl">' + lbl + '</span><div class="alloc-bar-wrap"><div class="alloc-bar-fill" style="width:' + Math.min(abs, 100) + '%;background:' + colors[lbl] + '"></div></div><span class="alloc-pct">' + n.toFixed(1) + '%</span></div>';
+      }
+      if (!allocWrap.innerHTML) allocWrap.innerHTML = '<p style="color:var(--dim);font-size:12px;padding:12px">Sin datos</p>';
+    }
+
+    // Geographic distribution
+    const geoWrap = document.getElementById('fi-geo-wrap');
+    if (geoWrap) {
+      geoWrap.innerHTML = '';
+      const geoMap = { 'Europa Des.': 'Reg Europa Des. %', 'Norteamérica': 'Reg Norteamérica %', 'Asia Em.': 'Reg Asia Em. %', 'Asia Des.': 'Reg Asia Des. %', 'Latinoam.': 'Reg Latinoam. %', 'Japón': 'Reg Japón %', 'UK': 'Reg UK %', 'África/OM': 'Reg África/OM %', 'Europa Em.': 'Reg Europa Em. %', 'Australasia': 'Reg Australasia %' };
+      const colors = { 'Europa Des.': '#0891b2', 'Norteamérica': '#7c3aed', 'Asia Em.': '#059669', 'Asia Des.': '#d97706', 'Latinoam.': '#e11d48', 'Japón': '#8b5cf6', 'UK': '#0ea5e9', 'África/OM': '#f59e0b', 'Europa Em.': '#10b981', 'Australasia': '#6366f1' };
+      const items = [];
+      for (const lbl in geoMap) { const n = pn(info[geoMap[lbl]]); if (n !== null && n > 0) items.push({ lbl, n, color: colors[lbl] }); }
+      items.sort(function(a, b) { return b.n - a.n; });
+      items.forEach(function(g) { geoWrap.innerHTML += '<div class="alloc-row"><span class="alloc-lbl">' + g.lbl + '</span><div class="alloc-bar-wrap"><div class="alloc-bar-fill" style="width:' + Math.min(g.n, 100) + '%;background:' + g.color + '"></div></div><span class="alloc-pct">' + g.n.toFixed(1) + '%</span></div>'; });
+      if (!geoWrap.innerHTML) geoWrap.innerHTML = '<p style="color:var(--dim);font-size:12px;padding:12px">Sin datos</p>';
+    }
+
+    // Renta Fija details
+    const rfCard = document.getElementById('fi-rf-card');
+    if (rfCard) {
+      const durN = pn(info['Duración Efect.']);
+      const ytmN = pn(info['TIR (YTM)']);
+      rfCard.style.display = (durN !== null || ytmN !== null) ? 'block' : 'none';
+      setText('fi-dur', durN !== null ? durN.toFixed(2) + ' años' : '—');
+      setText('fi-ytm', ytmN !== null ? ytmN.toFixed(2) + '%' : '—');
+      const couponN = pn(info['Coupon Medio']);
+      setText('fi-coupon', couponN !== null ? couponN.toFixed(2) + '%' : '—');
+      setText('fi-cq', info['Calidad Cred.'] || '—');
+    }
+
+    // ── TAB RIESGO ──
+    document.querySelectorAll('#fi-srri-scale .srri-box').forEach(function(box) { box.classList.toggle('active', parseInt(box.dataset.v, 10) === srriVal); });
+    const vol1 = pn(info['Volatil 1A']); setText('fi-vol1', vol1 !== null ? vol1.toFixed(2) + '%' : '—');
+    const vol3 = pn(info['Volatil 3A']); setText('fi-vol3', vol3 !== null ? vol3.toFixed(2) + '%' : '—');
+    const vol5 = pn(info['Volatil 5A']); setText('fi-vol5', vol5 !== null ? vol5.toFixed(2) + '%' : '—');
+    const sh1  = pn(info['Sharpe 1A']);  setText('fi-sh1',  sh1  !== null ? sh1.toFixed(3) : '—');
+    const sh3  = pn(info['Sharpe 3A']);  setText('fi-sh3',  sh3  !== null ? sh3.toFixed(3) : '—');
+    const sh5  = pn(info['Sharpe 5A']);  setText('fi-sh5',  sh5  !== null ? sh5.toFixed(3) : '—');
+    const dd1  = pn(info['Drawdown 1A (hist)']); setText('fi-dd1', dd1 !== null ? dd1.toFixed(2) + '%' : '—');
+    const dd3  = pn(info['Drawdown 3A (hist)']); setText('fi-dd3', dd3 !== null ? dd3.toFixed(2) + '%' : '—');
+    const dd5  = pn(info['Drawdown 5A (hist)']); setText('fi-dd5', dd5 !== null ? dd5.toFixed(2) + '%' : '—');
+    const ddm  = pn(info['Drawdown Máx (hist)']); setText('fi-ddmax', ddm !== null ? ddm.toFixed(2) + '%' : '—');
+    setText('fi-riskms3', info['Riesgo MS 3A'] || '—');
+    setText('fi-retms3',  info['Rent. MS 3A']  || '—');
+
+    // ── TAB OTROS ──
+    setText('fi-cat', info['Categoría ID'] || '—');
+    const ratingMs = parseInt(info['Rating ★ MS'] || '0', 10);
+    setText('fi-rating-ms', ratingMs > 0 ? '★'.repeat(ratingMs) + '☆'.repeat(5 - ratingMs) : '—');
+    setText('fi-idx-prim', info['Índice Primario'] || '—');
+    setText('fi-benchmark', info['Benchmark Prosp.'] || '—');
+    setText('fi-bestfit', info['Índice BestFit'] || '—');
+    setText('fi-fiscal', info['Fin Año Fiscal'] || '—');
+    setText('fi-estado', info['Estado'] || '—');
+    setText('fi-ucits-val', info['UCITS'] === 'true' ? 'Sí' : 'No');
+    const yld = pn(info['Yield 12M']); setText('fi-yield', yld !== null ? yld.toFixed(2) + '%' : '—');
+    setText('fi-acumdist', info['Acum/Dist'] || '—');
+    setText('fi-nactivos', info['# Activos Total'] || '—');
+    const t10 = pn(info['Top 10 %']); setText('fi-top10', t10 !== null ? t10.toFixed(2) + '%' : '—');
+
+  } catch(e) {
+    console.error('Error en populateFundInfo:', e);
   }
-  function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val || '—'; }
-
-  // ── IDENTITY HEADER ──
-  setText('fi-name', info['Nombre']);
-  document.getElementById('fi-isin-label').textContent = isin;
-
-  // Badges
-  const badgesEl = document.getElementById('fi-badges');
-  badgesEl.innerHTML = '';
-  function addBadge(text, cls) {
-    if (!text) return;
-    const s = document.createElement('span');
-    s.className = 'fi-badge ' + cls;
-    s.textContent = text;
-    badgesEl.appendChild(s);
-  }
-  addBadge(info['Clase Activo'] || info['Tipo Inversión'], 'fi-badge-cyan');
-  addBadge(info['Moneda'], 'fi-badge-violet');
-  if (info['UCITS'] === 'true') addBadge('UCITS', 'fi-badge-emerald');
-  addBadge(info['Estructura Legal'], 'fi-badge-amber');
-
-  // SRRI en header
-  const srriVal = parseInt(info['SRRI (quote)'] || info['SRRI Calculado'] || '0', 10);
-  document.querySelectorAll('#fi-srri-row .fi-srri-box').forEach(function(box) {
-    box.classList.toggle('active', parseInt(box.dataset.v, 10) === srriVal);
-  });
-
-  // Stars
-  const stars = parseInt(info['Rating ★'] || '0', 10);
-  document.getElementById('fi-stars').textContent = stars > 0 ? '★'.repeat(stars) + '☆'.repeat(5 - stars) : '';
-
-  // ── TAB RESUMEN ──
-  setText('fi-gestora',   info['Gestora']);
-  setText('fi-marca',     info['Marca Gestora']);
-  setText('fi-estructura',info['Estructura Legal']);
-  setText('fi-pais',      info['País Domicilio']);
-  setText('fi-moneda',    info['Moneda']);
-  setText('fi-tipo',      info['Tipo Activo']);
-  setText('fi-clase',     info['Clase Activo']);
-  const cre = (info['Creación (sp)'] || info['Fecha Creación'] || '').split('T')[0];
-  setText('fi-creacion',  cre || '—');
-  setText('fi-aum-total', fmtM(info['Patr Total (M)']));
-  setText('fi-aum-clase', fmtM(info['Patr Clase (M)']));
-  const oc = pn(info['Coste Ongoing %']);
-  setText('fi-ongoing',   oc !== null ? oc.toFixed(2) + '%' : '—');
-  const cm = pn(info['Comis.Gestión %']);
-  setText('fi-comision',  cm !== null ? cm.toFixed(2) + '%' : '—');
-
-  // ── TAB RENTABILIDAD ──
-  fmtRetVal('ret-1d',  info['Rent 1D']);
-  fmtRetVal('ret-1s',  info['Rent 1S']);
-  fmtRetVal('ret-1m',  info['Rent 1M']);
-  fmtRetVal('ret-3m',  info['Rent 3M']);
-  fmtRetVal('ret-ytd', info['Rent YTD']);
-  fmtRetVal('ret-1a',  info['Rent 1A']);
-  fmtRetVal('ret-3a',  info['Rent 3A']);
-  fmtRetVal('ret-5a',  info['Rent 5A']);
-  fmtRetVal('ret-10a', info['Rent 10A']);
-
-  // Historial anual
-  const tbody = document.getElementById('fi-annual-body');
-  tbody.innerHTML = '';
-  const years = [2025,2024,2023,2022,2021,2020,2019,2018,2017,2016];
-  years.forEach(function(y) {
-    const retRaw  = info[String(y)];
-    const rankRaw = info['Rank ' + y];
-    const catRaw  = info['Cat ' + y];
-    const n = pn(retRaw);
-    if (n === null) return;
-    const tr = document.createElement('tr');
-    const pctStr = (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
-    const rankStr = rankRaw && catRaw ? rankRaw + ' / ' + catRaw : (rankRaw || '—');
-    tr.innerHTML =
-      '<td class="name">' + y + '</td>' +
-      '<td class="mono ' + (n >= 0 ? 'up' : 'down') + '" style="text-align:right">' + pctStr + '</td>' +
-      '<td class="mono" style="text-align:right">' + rankStr + '</td>';
-    tbody.appendChild(tr);
-  });
-
-  // ── TAB CARTERA ──
-  // Asset allocation
-  const allocData = [
-    { lbl: 'Renta Variable', key: '% Acciones',   color: '#0891b2' },
-    { lbl: 'Renta Fija',     key: '% Bonos',      color: '#7c3aed' },
-    { lbl: 'Efectivo',       key: '% Efectivo',   color: '#059669' },
-    { lbl: 'Convertibles',   key: '% Convertible',color: '#d97706' },
-    { lbl: 'Otros',          key: '% Otro',        color: '#64748b' },
-  ];
-  const allocWrap = document.getElementById('fi-alloc-wrap');
-  allocWrap.innerHTML = '';
-  allocData.forEach(function(item) {
-    const n = pn(info[item.key]);
-    if (n === null || n === 0) return;
-    const abs = Math.abs(n);
-    allocWrap.innerHTML +=
-      '<div class="alloc-row">' +
-        '<span class="alloc-lbl">' + item.lbl + '</span>' +
-        '<div class="alloc-bar-wrap"><div class="alloc-bar-fill" style="width:' + Math.min(abs, 100) + '%;background:' + item.color + '"></div></div>' +
-        '<span class="alloc-pct">' + n.toFixed(1) + '%</span>' +
-      '</div>';
-  });
-  if (!allocWrap.innerHTML) allocWrap.innerHTML = '<p style="color:var(--dim);font-size:12px;padding:12px">Sin datos</p>';
-
-  // Geographic distribution
-  const geoData = [
-    { lbl: 'Europa Des.',   key: 'Reg Europa Des. %',  color: '#0891b2' },
-    { lbl: 'Norteamérica',  key: 'Reg Norteamérica %', color: '#7c3aed' },
-    { lbl: 'Asia Em.',      key: 'Reg Asia Em. %',     color: '#059669' },
-    { lbl: 'Asia Des.',     key: 'Reg Asia Des. %',    color: '#d97706' },
-    { lbl: 'Latinoam.',     key: 'Reg Latinoam. %',    color: '#e11d48' },
-    { lbl: 'Japón',         key: 'Reg Japón %',        color: '#8b5cf6' },
-    { lbl: 'UK',            key: 'Reg UK %',           color: '#0ea5e9' },
-    { lbl: 'África/OM',     key: 'Reg África/OM %',    color: '#f59e0b' },
-    { lbl: 'Europa Em.',    key: 'Reg Europa Em. %',   color: '#10b981' },
-    { lbl: 'Australasia',   key: 'Reg Australasia %',  color: '#6366f1' },
-  ];
-  const geoWrap = document.getElementById('fi-geo-wrap');
-  geoWrap.innerHTML = '';
-  const geoItems = geoData.map(function(g) { return { lbl: g.lbl, color: g.color, n: pn(info[g.key]) }; })
-    .filter(function(g) { return g.n !== null && g.n > 0; })
-    .sort(function(a, b) { return b.n - a.n; });
-  geoItems.forEach(function(g) {
-    geoWrap.innerHTML +=
-      '<div class="alloc-row">' +
-        '<span class="alloc-lbl">' + g.lbl + '</span>' +
-        '<div class="alloc-bar-wrap"><div class="alloc-bar-fill" style="width:' + Math.min(g.n, 100) + '%;background:' + g.color + '"></div></div>' +
-        '<span class="alloc-pct">' + g.n.toFixed(1) + '%</span>' +
-      '</div>';
-  });
-  if (!geoWrap.innerHTML) geoWrap.innerHTML = '<p style="color:var(--dim);font-size:12px;padding:12px">Sin datos</p>';
-
-  // Renta Fija details
-  const rfCard = document.getElementById('fi-rf-card');
-  const durN = pn(info['Duración Efect.']);
-  const ytmN = pn(info['TIR (YTM)']);
-  rfCard.style.display = (durN !== null || ytmN !== null) ? 'block' : 'none';
-  setText('fi-dur',    durN !== null ? durN.toFixed(2) + ' años' : '—');
-  setText('fi-ytm',    ytmN !== null ? ytmN.toFixed(2) + '%' : '—');
-  const couponN = pn(info['Coupon Medio']);
-  setText('fi-coupon', couponN !== null ? couponN.toFixed(2) + '%' : '—');
-  setText('fi-cq',     info['Calidad Cred.'] || info['Calidad (dom.)'] || '—');
-
-  // ── TAB RIESGO ──
-  // SRRI scale (grande)
-  document.querySelectorAll('#fi-srri-scale .srri-box').forEach(function(box) {
-    box.classList.toggle('active', parseInt(box.dataset.v, 10) === srriVal);
-  });
-  // Métricas
-  const vol1 = pn(info['Volatil 1A']); setText('fi-vol1', vol1 !== null ? vol1.toFixed(2) + '%' : '—');
-  const vol3 = pn(info['Volatil 3A']); setText('fi-vol3', vol3 !== null ? vol3.toFixed(2) + '%' : '—');
-  const vol5 = pn(info['Volatil 5A']); setText('fi-vol5', vol5 !== null ? vol5.toFixed(2) + '%' : '—');
-  const sh1  = pn(info['Sharpe 1A']);  setText('fi-sh1',  sh1  !== null ? sh1.toFixed(3) : '—');
-  const sh3  = pn(info['Sharpe 3A']);  setText('fi-sh3',  sh3  !== null ? sh3.toFixed(3) : '—');
-  const sh5  = pn(info['Sharpe 5A']);  setText('fi-sh5',  sh5  !== null ? sh5.toFixed(3) : '—');
-  const dd1  = pn(info['Drawdown 1A (hist)']); setText('fi-dd1', dd1 !== null ? dd1.toFixed(2) + '%' : '—');
-  const dd3  = pn(info['Drawdown 3A (hist)']); setText('fi-dd3', dd3 !== null ? dd3.toFixed(2) + '%' : '—');
-  const dd5  = pn(info['Drawdown 5A (hist)']); setText('fi-dd5', dd5 !== null ? dd5.toFixed(2) + '%' : '—');
-  const ddm  = pn(info['Drawdown Máx (hist)']); setText('fi-ddmax', ddm !== null ? ddm.toFixed(2) + '%' : '—');
-  setText('fi-riskms3', info['Riesgo MS 3A'] || '—');
-  setText('fi-retms3',  info['Rent. MS 3A']  || '—');
-
-  // ── TAB OTROS ──
-  setText('fi-cat',       info['Categoría'] || info['Categoría ID'] || '—');
-  const ratingMs = parseInt(info['Rating ★ MS'] || '0', 10);
-  setText('fi-rating-ms', ratingMs > 0 ? '★'.repeat(ratingMs) + '☆'.repeat(5 - ratingMs) : '—');
-  setText('fi-idx-prim',  info['Índice Primario'] || '—');
-  setText('fi-benchmark', info['Benchmark Prosp.'] || '—');
-  setText('fi-bestfit',   info['Índice BestFit'] || '—');
-  setText('fi-fiscal',    info['Fin Año Fiscal'] || '—');
-  setText('fi-estado',    info['Estado'] || '—');
-  setText('fi-ucits-val', info['UCITS'] === 'true' ? 'Sí' : 'No');
-  const yld = pn(info['Yield 12M']);
-  setText('fi-yield', yld !== null ? yld.toFixed(2) + '%' : '—');
-  setText('fi-acumdist', info['Acum/Dist'] || '—');
-  setText('fi-nactivos',  info['# Activos Total'] || '—');
-  const t10 = pn(info['Top 10 %']);
-  setText('fi-top10', t10 !== null ? t10.toFixed(2) + '%' : '—');
 }
 
 function loadFund(isin) {
