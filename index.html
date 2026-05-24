@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Fondos - GitHub Version</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .btn-tab.active { border-bottom: 4px solid #2563eb; color: #1e40af; font-weight: 600; }
+        .btn-filter { padding: 4px 14px; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;}
+        .btn-filter.active { background-color: #2563eb; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn-filter.inactive { background-color: transparent; color: #4b5563; }
+        .btn-filter.inactive:hover { background-color: #e5e7eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm z-10">
+        <div class="flex items-center gap-4">
+            <span class="text-2xl font-extrabold text-blue-600">FinDash.</span>
+            <div class="h-6 w-px bg-gray-300 hidden sm:block"></div>
+            <div class="w-full sm:w-auto">
+                <label for="buscadorFondos" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Buscar Fondo</label>
+                <select id="buscadorFondos" class="block w-full sm:w-96 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 font-medium cursor-pointer shadow-inner">
+                    <option value="">Cargando datos desde CSV...</option>
+                </select>
+            </div>
+        </div>
+        <div class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-md">Último NAV: <span id="fecha-nav" class="font-bold text-gray-800">--</span></div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="mb-6">
+                <span id="txt-gestora" class="text-sm font-bold text-blue-600 tracking-wider uppercase bg-blue-50 px-2 py-1 rounded">--</span>
+                <h1 id="txt-nombre" class="text-3xl font-extrabold text-gray-900 mt-2">Cargando base de datos...</h1>
+                <p class="text-sm text-gray-500 mt-2">ISIN: <span id="txt-isin" class="font-semibold">--</span> | Moneda: <span id="txt-moneda">--</span> | País: <span id="txt-pais">--</span></p>
+            </div>
+
+            <nav class="border-b border-gray-200 mb-6 flex gap-6">
+                <button id="btn-grafico" class="btn-tab active pb-3 text-gray-500 hover:text-gray-900 transition">📈 Evolución y Rendimiento</button>
+                <button id="btn-info" class="btn-tab pb-3 text-gray-500 hover:text-gray-900 transition">📄 Información Detallada</button>
+            </nav>
+
+            <section id="tab-grafico" class="tab-content active">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold">Evolución del Valor Liquidativo (NAV)</h2>
+                            <p class="text-sm text-gray-400">Rendimiento en el periodo: <span id="txt-rendimiento" class="font-bold">--</span></p>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-1 bg-gray-100 p-1 rounded-full border border-gray-200" id="contenedor-filtros">
+                            <button data-meses="3" class="btn-filter inactive">3M</button>
+                            <button data-meses="6" class="btn-filter inactive">6M</button>
+                            <button data-meses="12" class="btn-filter inactive">1A</button>
+                            <button data-meses="36" class="btn-filter inactive">3A</button>
+                            <button data-meses="60" class="btn-filter inactive">5A</button>
+                            <button data-meses="total" class="btn-filter active">Total</button>
+                        </div>
+                    </div>
+                    <div class="relative h-96 w-full">
+                        <canvas id="chartEvolucion"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-info" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="text-blue-600 font-bold mb-4 border-b pb-2">Identificación</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex justify-between"><span class="text-gray-500">Nombre Legal</span> <span id="info-nombre" class="font-medium text-right">--</span></li>
+                            <li class="flex justify-between"><span class="text-gray-500">ISIN</span> <span id="info-isin" class="font-medium">--</span></li>
+                            <li class="flex justify-between"><span class="text-gray-500">Categoría MS</span> <span id="info-cat" class="font-medium text-right">--</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="text-blue-600 font-bold mb-4 border-b pb-2">Clasificación y Riesgo</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex justify-between"><span class="text-gray-500">Rating Morningstar</span> <span id="info-rating" class="font-bold text-yellow-500 text-lg">--</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Riesgo (SRRI)</span> <span id="info-riesgo" class="font-bold bg-gray-100 px-3 py-1 rounded-full">--</span></li>
+                            <li class="flex justify-between"><span class="text-gray-500">Risk Score</span> <span id="info-score" class="font-medium">--</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="text-blue-600 font-bold mb-4 border-b pb-2">Costes y Patrimonio</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex justify-between"><span class="text-gray-500">Gastos Corrientes (TER)</span> <span id="info-ter" class="font-bold">--</span></li>
+                            <li class="flex justify-between"><span class="text-gray-500">Comisión Gestión Real</span> <span id="info-gestion" class="font-medium">--</span></li>
+                            <li class="flex justify-between"><span class="text-gray-500">Patrimonio Total (M)</span> <span id="info-patr" class="font-bold">--</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
